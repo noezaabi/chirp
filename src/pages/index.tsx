@@ -7,11 +7,23 @@ import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import Image from "next/image";
 import { LoadingPage } from "~/components/LoadingSpinner";
+import { useState } from "react";
 
 dayjs.extend(relativeTime);
 
 const CreatePostWizard = () => {
   const { user } = useUser();
+
+  const ctx = api.useContext();
+
+  const { mutate, isLoading: isPosting } = api.posts.create.useMutation({
+    onSuccess: () => {
+      setInput("");
+      ctx.posts.getAll.invalidate();
+    },
+  });
+
+  const [input, setInput] = useState("");
 
   if (!user) {
     return null;
@@ -31,7 +43,14 @@ const CreatePostWizard = () => {
         type="text"
         placeholder="Enter your Chirp!"
         className="grow bg-transparent outline-none"
+        value={input}
+        onChange={(e) => setInput(e.target.value)}
+        disabled={isPosting}
       />
+
+      <button disabled={isPosting} onClick={() => mutate({ content: input })}>
+        Chirp!
+      </button>
     </div>
   );
 };
@@ -54,7 +73,7 @@ const PostView = (props: PostWithUser) => {
           <span className="">{`@${user.username}`}</span> ·
           <span className="">{`${dayjs(post.createdAt).fromNow()}`}</span>
         </div>
-        <span>{post.content}</span>
+        <span className="text-2xl">{post.content}</span>
       </div>
     </div>
   );

@@ -34,7 +34,7 @@ const CreatePostWizard = () => {
 
   const [input, setInput] = useState("");
 
-  if (!user) {
+  if (!user || !user.username) {
     return null;
   }
 

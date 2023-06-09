@@ -13,7 +13,7 @@ const ProfilePage: NextPage<{ username: string }> = ({ username }) => {
     username,
   });
 
-  if (!data) return <div>Something went wrong...</div>;
+  if (!data || !data.username) return <div>Something went wrong...</div>;
 
   return (
     <>
@@ -24,7 +24,7 @@ const ProfilePage: NextPage<{ username: string }> = ({ username }) => {
         <div className="relative h-36  bg-slate-600">
           <Image
             src={data.profileImageUrl}
-            alt={`${data.username}'s profile picture`}
+            alt={`${data?.username}'s profile picture`}
             width={128}
             height={128}
             className="absolute bottom-0 left-0 -mb-[64px] ml-4 rounded-full border-4 border-black bg-black"
@@ -39,7 +39,7 @@ const ProfilePage: NextPage<{ username: string }> = ({ username }) => {
 };
 
 export const getStaticProps: GetStaticProps = async (context) => {
-  const ssg = await createServerSideHelpers({
+  const ssg = createServerSideHelpers({
     router: appRouter,
     ctx: { prisma, userId: null },
     transformer: superjson, // optional - adds superjson serialization

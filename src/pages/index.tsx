@@ -20,7 +20,7 @@ const CreatePostWizard = () => {
   const { mutate, isLoading: isPosting } = api.posts.create.useMutation({
     onSuccess: () => {
       setInput("");
-      ctx.posts.getAll.invalidate();
+      void ctx.posts.getAll.invalidate();
     },
     onError: (err) => {
       const errorMessage = err.data?.zodError?.fieldErrors.content;
@@ -34,7 +34,7 @@ const CreatePostWizard = () => {
 
   const [input, setInput] = useState("");
 
-  if (!user || !user.username) {
+  if (!user) {
     return null;
   }
 

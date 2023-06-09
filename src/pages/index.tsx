@@ -6,8 +6,9 @@ import { RouterOutputs, api } from "~/utils/api";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import Image from "next/image";
-import { LoadingPage } from "~/components/LoadingSpinner";
+import { LoadingPage, LoadingSpinner } from "~/components/LoadingSpinner";
 import { useState } from "react";
+import { toast } from "react-hot-toast";
 
 dayjs.extend(relativeTime);
 
@@ -20,6 +21,14 @@ const CreatePostWizard = () => {
     onSuccess: () => {
       setInput("");
       ctx.posts.getAll.invalidate();
+    },
+    onError: (err) => {
+      const errorMessage = err.data?.zodError?.fieldErrors.content;
+      if (errorMessage && errorMessage[0]) {
+        toast.error(errorMessage[0]);
+      } else {
+        toast.error("Something went wrong! Please try again later.");
+      }
     },
   });
 
@@ -38,19 +47,30 @@ const CreatePostWizard = () => {
         width={56}
         height={56}
       />
-
       <input
         type="text"
         placeholder="Enter your Chirp!"
         className="grow bg-transparent outline-none"
         value={input}
         onChange={(e) => setInput(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            if (input !== "" && !isPosting) {
+              mutate({ content: input });
+            }
+          }
+        }}
         disabled={isPosting}
       />
-
-      <button disabled={isPosting} onClick={() => mutate({ content: input })}>
-        Chirp!
-      </button>
+      {input !== "" && !isPosting && (
+        <button onClick={() => mutate({ content: input })}>Chirp!</button>
+      )}
+      {isPosting && (
+        <div className="flex items-center justify-center">
+          <LoadingSpinner size={20} />
+        </div>
+      )}
     </div>
   );
 };
